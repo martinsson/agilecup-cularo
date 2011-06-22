@@ -18,6 +18,7 @@ class Curl {
       throw new Exception('Application needs the CURL PHP extension');
     }
     $this->curlHandler = curl_init();
+    $this->setDefaultOptions();
   }
   
   protected function setUrl($url) {
@@ -26,6 +27,10 @@ class Curl {
   
   protected function setDefaultOptions() {
     curl_setopt_array($this->curlHandler, self::$CURL_OPTS);
+  }
+  
+  protected function setOption($name, $value) {
+    curl_setopt($this->curlHandler, $name, $value);
   }
   
   protected function getInfo() {
@@ -45,23 +50,28 @@ class Curl {
     $header['content'] = $content;
   }
   
-  protected function executeRequest() {
+  protected function exec() {
     return curl_exec($this->curlHandler);
   }
   
-  public function get($url) {
-    $this->setDefaultOptions();
+  protected function makeRequest($url) {
     $this->setUrl($url);
-    $content = $this->executeRequest();
+    $content = $this->exec();
     $header = $this->getInfo();
     $this->retrieveErrors($header);
     $this->setResponseContent($header, $content);
     $this->close();
     return $header;
   }
+
+  public function get($url = '') {
+    return $this->makeRequest($url);
+  }
   
-//  public function post($params = array(), $url) {
-//    
-//  }
+  public function post($params = array(), $url = '') {
+    $this->setOption(CURLOPT_POST, true);
+    $this->setOption(CURLOPT_POSTFIELDS, $params);
+    return $this->makeRequest($url);
+  }
 }
 
