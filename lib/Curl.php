@@ -20,10 +20,12 @@ class Curl {
     $this->curlHandler = curl_init();
   }
   
-  protected function setUrlAndOptions($url) {
-    $options = self::$CURL_OPTS;
-    $options[CURLOPT_URL] = $url;
-    curl_setopt_array($this->curlHandler, $options);
+  protected function setUrl($url) {
+    curl_setopt($this->curlHandler, CURLOPT_URL, $url);
+  }
+  
+  protected function setDefaultOptions() {
+    curl_setopt_array($this->curlHandler, self::$CURL_OPTS);
   }
   
   protected function getInfo() {
@@ -48,7 +50,8 @@ class Curl {
   }
   
   public function get($url) {
-    $this->setUrlAndOptions($url);
+    $this->setDefaultOptions();
+    $this->setUrl($url);
     $content = $this->executeRequest();
     $header = $this->getInfo();
     $this->retrieveErrors($header);
@@ -56,5 +59,9 @@ class Curl {
     $this->close();
     return $header;
   }
+  
+//  public function post($params = array(), $url) {
+//    
+//  }
 }
 
